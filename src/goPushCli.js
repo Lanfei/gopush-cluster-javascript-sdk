@@ -90,10 +90,12 @@
 			if(data[0] == '+'){
 				clearTimeout(that.timerOutTimer);
 				// console.log('Debug: 响应心跳');
-			}else if(data[0] == '$'){
+			}else if(data[0] == '-'){
+				that.onError('握手协议错误' + data);
+			}else{
 				var message;
 				try{
-					message = parseJSON(data.split('\r\n')[1]);
+					message = parseJSON(data);
 				}catch(e){
 					that.onError('解析返回JSON失败');
 					return;
@@ -112,10 +114,6 @@
 					}
 				}
 				that.onOnlineMessage(message);
-			}else if(data[0] == '-'){
-				that.onError('握手协议错误' + data);
-			}else{
-				that.onError('无法识别返回协议' + data);
 			}
 		};
 		that.ws.onclose = function(e){
