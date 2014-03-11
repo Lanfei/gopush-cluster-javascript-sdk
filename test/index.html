@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Go Push Cluster JavaScript Demo</title>
+	<style type="text/css">
+	#content{
+		width: 600px;
+		height: 400px;
+		overflow: auto;
+		font-size: 12px;
+		background: #eee;
+		padding: 5px 10px;
+		margin-bottom: 5px;
+		border: 1px solid #888;
+		box-sizing: border-box;
+		font-family: "微软雅黑";
+	}
+	#message{
+		width: 600px;
+		padding: 3px;
+		font-size: 12px;
+		font-family: "微软雅黑";
+		box-sizing: border-box;
+	}
+	#api{
+		display: none;
+	}
+	</style>
+</head>
+<body>
+	<div id="content"></div>
+	<form id="chat" target="api" method="post" action="http://42.96.176.106:8091/admin/push?key=Lanfei&expire=60&gid=0">
+		<input id="message" type="text" autocomplete="off" placeholder="想要说什么" />
+	</form>
+	<input id="close" type="button" value="断开">
+	<iframe id="api" name="api" frameborder="0"></iframe>
+	<script src="../src/goPushCli.js"></script>
+	<script>
+	var channel = new GoPushCli({
+		host: '42.96.176.106',
+		port: 8093,
+		key: 'Lanfei',
+		onOfflineMessage: function(data){
+			addContent(decodeURIComponent(data.msg));
+		},
+		onOnlineMessage: function(data){
+			addContent(decodeURIComponent(data.msg));
+		},
+		onError: function(message){
+			addContent(message);
+		},
+		onOpen: function(message){
+			addContent('初始化完成');
+		},
+		onClose: function(message){
+			addContent('连接断开');
+		}
+	});
+	var addContent = function(content){
+		var element = document.getElementById('content');
+		element.innerHTML += content + '<br />';
+		element.scrollTop = element.scrollHeight;
+	}
+	var nickname = prompt('请输入昵称：', '佚名') || '佚名';
+	document.getElementById('message').name = nickname;
+	document.getElementById('chat').onsubmit = function(){
+		if(document.getElementById('message').value == ''){
+			return false;
+		}
+		setTimeout(function(){
+			document.getElementById('message').value = '';
+		});
+	};
+	document.getElementById('close').onclick = function(){
+		channel.destory();
+	};
+	channel.start();
+	</script>
+</body>
+</html>
